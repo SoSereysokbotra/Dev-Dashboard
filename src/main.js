@@ -188,6 +188,17 @@ function createWindow() {
             await win.webContents.executeJavaScript("document.getElementById('panelBody').scrollTop = 9999;");
             await new Promise(r => setTimeout(r, 200));
           }
+          if (process.argv.includes('--test-confirm')) {
+            await win.webContents.executeJavaScript(`
+              const chk = document.querySelector('.disk-check');
+              if (chk) {
+                chk.click();
+                const btn = document.querySelector('.disk-clean-btn');
+                if (btn) btn.click();
+              }
+            `);
+            await new Promise(r => setTimeout(r, 300));
+          }
           const img = await win.webContents.capturePage();
           fs.writeFileSync(path.join(__dirname, '..', 'dev-dashboard-screenshot.png'), img.toPNG());
           console.log('[screenshot] wrote dev-dashboard-screenshot.png (' + img.getSize().width + 'x' + img.getSize().height + ')');

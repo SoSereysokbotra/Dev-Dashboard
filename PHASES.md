@@ -594,15 +594,15 @@ Filesystem only. Target names: `node_modules`, `.venv`, `venv`, `__pycache__`,
 
 ### Acceptance criteria
 
-- [ ] Finds ≥ 80 `node_modules` on `D:\`
-- [ ] Sizes match `du -sm` on 3 spot-checked folders
-- [ ] Nothing selected by default
-- [ ] Deletion confirms with paths and total size
-- [ ] A folder nested > 260 characters deletes completely — verified by
+- [x] Finds ≥ 80 `node_modules` on `D:\`
+- [x] Sizes match `du -sm` on 3 spot-checked folders
+- [x] Nothing selected by default
+- [x] Deletion confirms with paths and total size
+- [x] A folder nested > 260 characters deletes completely — verified by
       creating one under the scratch directory first
-- [ ] A test junction is skipped, not followed
-- [ ] Freed space is re-measured after deletion
-- [ ] An active project's `node_modules` is flagged "in use", not offered as safe
+- [x] A test junction is skipped, not followed
+- [x] Freed space is re-measured after deletion
+- [x] An active project's `node_modules` is flagged "in use", not offered as safe
 
 ### Verify
 

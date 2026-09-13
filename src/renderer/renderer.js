@@ -149,7 +149,7 @@
 
     // Panels can grow up to 420px (Req 5)
     if (bridge && bridge.setWindowHeight) {
-      bridge.setWindowHeight(moduleId === 'cost' ? 420 : 380);
+      bridge.setWindowHeight(moduleId === 'cost' || moduleId === 'disk' ? 420 : 380);
     }
 
     if (bridge && bridge.getPanel) {
@@ -184,6 +184,11 @@
 
     if (currentModuleId === 'cost' && data.topProjects) {
       renderCostPanel(data);
+      return;
+    }
+
+    if (currentModuleId === 'disk' && data.candidates) {
+      renderDiskPanel(data);
       return;
     }
 
@@ -466,10 +471,267 @@
     panelBody.appendChild(disclaimer);
   }
 
+  let lastDiskSuccessBanner = null;
+
+  function renderDiskPanel(data) {
+    panelHead.textContent = data.statusText || 'Rebuildable Folders';
+    panelBody.textContent = '';
+
+    // Remove any existing confirm overlays
+    const existingOverlay = document.querySelector('.confirm-overlay');
+    if (existingOverlay) existingOverlay.remove();
+
+    if (!data.candidates || data.candidates.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'repo-remaining';
+      empty.textContent = 'No rebuildable folders found.';
+      panelBody.appendChild(empty);
+      return;
+    }
+
+    if (lastDiskSuccessBanner) {
+      const banner = document.createElement('div');
+      banner.className = 'disk-success-banner';
+      banner.textContent = lastDiskSuccessBanner;
+      panelBody.appendChild(banner);
+      setTimeout(function () {
+        lastDiskSuccessBanner = null;
+      }, 8000);
+    }
+
+    // Default select nothing! (Requirement 2 & Acceptance Criteria)
+    const selectedPaths = new Set();
+
+    const list = document.createElement('div');
+    list.className = 'disk-list';
+
+    // Action bar at bottom
+    const actionBar = document.createElement('div');
+    actionBar.className = 'disk-action-bar';
+
+    const selectedText = document.createElement('span');
+    selectedText.className = 'disk-selected-text';
+    selectedText.textContent = '0 selected (0 B)';
+
+    const cleanBtn = document.createElement('button');
+    cleanBtn.className = 'disk-clean-btn';
+    cleanBtn.textContent = 'Clean Selected';
+    cleanBtn.disabled = true;
+
+    actionBar.appendChild(selectedText);
+    actionBar.appendChild(cleanBtn);
+
+    function updateActionBar() {
+      let totalBytes = 0;
+      data.candidates.forEach(function (c) {
+        if (selectedPaths.has(c.path)) {
+          totalBytes += (c.sizeBytes || 0);
+        }
+      });
+      const count = selectedPaths.size;
+      cleanBtn.disabled = count === 0;
+      selectedText.textContent = count + ' selected (' + (count > 0 ? formatBytesSimple(totalBytes) : '0 B') + ')';
+    }
+
+    data.candidates.forEach(function (c) {
+      const item = document.createElement('div');
+      item.className = 'disk-item ' + c.safety;
+      item.title = c.path + ' (click to open folder in Explorer)';
+
+      const checkCol = document.createElement('div');
+      checkCol.className = 'disk-check-col';
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'disk-check';
+      checkbox.checked = false; // NOTHING SELECTED BY DEFAULT
+      if (c.safety === 'in-use') {
+        checkbox.title = 'Project is active or recently modified (' + (c.inUseReason || 'in use') + ')';
+      }
+
+      checkbox.addEventListener('change', function (e) {
+        e.stopPropagation();
+        if (checkbox.checked) {
+          selectedPaths.add(c.path);
+        } else {
+          selectedPaths.delete(c.path);
+        }
+        updateActionBar();
+      });
+
+      checkCol.appendChild(checkbox);
+
+      const info = document.createElement('div');
+      info.className = 'disk-info';
+
+      const rowTop = document.createElement('div');
+      rowTop.className = 'disk-row-top';
+
+      const name = document.createElement('span');
+      name.className = 'disk-name';
+      name.textContent = c.type;
+
+      const project = document.createElement('span');
+      project.className = 'disk-project';
+      project.textContent = c.projectName;
+
+      const size = document.createElement('span');
+      size.className = 'disk-size';
+      size.textContent = c.sizeFormatted || 'sizing...';
+
+      rowTop.appendChild(name);
+      rowTop.appendChild(project);
+      rowTop.appendChild(size);
+
+      const rowBottom = document.createElement('div');
+      rowBottom.className = 'disk-row-bottom';
+
+      const statusPill = document.createElement('span');
+      statusPill.className = 'disk-pill ' + (c.safety === 'safe' ? 'safe' : (c.safety === 'in-use' ? 'in-use' : 'no-lock'));
+      statusPill.textContent = c.safetyLabel || (c.safety === 'safe' ? 'Safe' : (c.safety === 'in-use' ? 'In use' : 'No lockfile'));
+      rowBottom.appendChild(statusPill);
+
+      if (c.lockfile) {
+        const lockPill = document.createElement('span');
+        lockPill.className = 'disk-pill';
+        lockPill.textContent = c.lockfile;
+        rowBottom.appendChild(lockPill);
+      }
+
+      if (c.daysIdle != null && c.daysIdle < 999) {
+        const idlePill = document.createElement('span');
+        idlePill.className = 'disk-pill';
+        idlePill.textContent = c.daysIdle + 'd idle';
+        rowBottom.appendChild(idlePill);
+      }
+
+      info.appendChild(rowTop);
+      info.appendChild(rowBottom);
+
+      item.appendChild(checkCol);
+      item.appendChild(info);
+
+      item.addEventListener('click', function (e) {
+        if (e.target === checkbox) return;
+        if (bridge && bridge.invokeAction) {
+          bridge.invokeAction('disk', 'openFolder', { path: c.parent });
+        }
+      });
+
+      list.appendChild(item);
+    });
+
+    panelBody.appendChild(list);
+    panelBody.appendChild(actionBar);
+
+    // Confirmation dialog handler
+    cleanBtn.addEventListener('click', function () {
+      if (selectedPaths.size === 0) return;
+      showConfirmDialog(Array.from(selectedPaths), data.candidates);
+    });
+  }
+
+  function showConfirmDialog(pathsToDelete, candidates) {
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-overlay';
+
+    const dialog = document.createElement('div');
+    dialog.className = 'confirm-dialog';
+
+    const title = document.createElement('div');
+    title.className = 'confirm-title';
+    title.textContent = 'Confirm Folder Cleanup';
+
+    const desc = document.createElement('div');
+    desc.className = 'confirm-desc';
+    desc.textContent = 'The following rebuildable folders will be permanently deleted:';
+
+    const pathList = document.createElement('div');
+    pathList.className = 'confirm-paths';
+    let totalBytesToDelete = 0;
+
+    pathsToDelete.forEach(function (p) {
+      const el = document.createElement('div');
+      el.textContent = p;
+      pathList.appendChild(el);
+
+      const cand = candidates.find(function (c) { return c.path === p; });
+      if (cand && cand.sizeBytes) totalBytesToDelete += cand.sizeBytes;
+    });
+
+    const stat = document.createElement('div');
+    stat.className = 'confirm-stat';
+    stat.textContent = 'Total to delete: ' + pathsToDelete.length + ' folders (' + formatBytesSimple(totalBytesToDelete) + ')';
+
+    const actions = document.createElement('div');
+    actions.className = 'confirm-actions';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'confirm-btn cancel';
+    cancelBtn.textContent = 'Cancel';
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'confirm-btn delete';
+    deleteBtn.textContent = 'Delete Folders';
+
+    actions.appendChild(cancelBtn);
+    actions.appendChild(deleteBtn);
+
+    dialog.appendChild(title);
+    dialog.appendChild(desc);
+    dialog.appendChild(pathList);
+    dialog.appendChild(stat);
+    dialog.appendChild(actions);
+    overlay.appendChild(dialog);
+
+    document.getElementById('card').appendChild(overlay);
+
+    cancelBtn.addEventListener('click', function () {
+      overlay.remove();
+    });
+
+    deleteBtn.addEventListener('click', async function () {
+      deleteBtn.textContent = 'Deleting...';
+      deleteBtn.disabled = true;
+      cancelBtn.disabled = true;
+
+      try {
+        if (bridge && bridge.invokeAction) {
+          const result = await bridge.invokeAction('disk', 'clean', { paths: pathsToDelete });
+          overlay.remove();
+          if (result && result.totalFreedFormatted) {
+            lastDiskSuccessBanner = '\u2713 Freed ' + result.totalFreedFormatted + ' across ' + result.successCount + ' folders (re-measured)';
+          }
+          // Refresh panel data
+          if (bridge.getPanel) {
+            const refreshed = await bridge.getPanel('disk');
+            renderDiskPanel(refreshed);
+          }
+        }
+      } catch (err) {
+        deleteBtn.textContent = 'Error: ' + err.message;
+        cancelBtn.disabled = false;
+      }
+    });
+  }
+
+  function formatBytesSimple(bytes) {
+    if (bytes == null || isNaN(bytes) || bytes === 0) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    const val = bytes / Math.pow(1024, i);
+    return val.toFixed(i >= 2 ? 1 : 0) + ' ' + units[i];
+  }
+
   // --- keyboard handling ---
 
   window.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
+      const modal = document.querySelector('.confirm-overlay');
+      if (modal) {
+        modal.remove();
+        return;
+      }
       if (currentView === 'panel') {
         showHome();
       } else {
