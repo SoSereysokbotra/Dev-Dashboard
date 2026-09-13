@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self' data:;" />
+  <title>Dev Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="card" id="card">
+    <header class="titlebar">
+      <button class="iconbtn hidden" id="backBtn" title="Back to Home (Esc)" aria-label="Back to Home">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <span class="dot" id="statusDot"></span>
+      <span class="title" id="titleText">Dev Dashboard</span>
+      <div class="actions">
+        <button class="iconbtn" id="themeBtn" title="Toggle light/dark mode" aria-label="Toggle theme">
+          <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <line x1="12" y1="2" x2="12" y2="4"></line>
+            <line x1="12" y1="20" x2="12" y2="22"></line>
+            <line x1="4.93" y1="4.93" x2="6.34" y2="6.34"></line>
+            <line x1="17.66" y1="17.66" x2="19.07" y2="19.07"></line>
+            <line x1="2" y1="12" x2="4" y2="12"></line>
+            <line x1="20" y1="12" x2="22" y2="12"></line>
+            <line x1="6.34" y1="17.66" x2="4.93" y2="19.07"></line>
+            <line x1="19.07" y1="4.93" x2="17.66" y2="6.34"></line>
+          </svg>
+          <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+          </svg>
+        </button>
+        <button class="iconbtn" id="menuBtn" title="Menu" aria-label="Menu">&#8942;</button>
+        <button class="iconbtn" id="hideBtn" title="Hide (Esc)" aria-label="Hide window">&#10005;</button>
+      </div>
+    </header>
+
+    <main class="content-host">
+      <!-- Home view -->
+      <section class="home-view" id="homeView">
+        <div class="module-list" id="moduleList">
+          <!-- Populated by renderer.js -->
+        </div>
+      </section>
+
+      <!-- Panel view -->
+      <section class="panel-view hidden" id="panelView">
+        <div class="panel-head" id="panelHead"></div>
+        <div class="panel-body" id="panelBody"></div>
+      </section>
+    </main>
+
+    <div class="divider"></div>
+
+    <footer class="foot">
+      <span class="key-hint" id="keyHint">press 1–4 to open &middot; Esc to hide</span>
+    </footer>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

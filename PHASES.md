@@ -346,16 +346,16 @@ module.exports = {
 
 ### Acceptance criteria
 
-- [ ] `git clone` → `npm install` → `npm start` works on a clean copy; the
+- [x] `git clone` → `npm install` → `npm start` works on a clean copy; the
       Electron binary is present after install (T2)
-- [ ] Home screen shows four rows, all `unavailable`, no renderer errors
-- [ ] `Ctrl+Alt+D` toggles; `Ctrl+Alt+C` still toggles Claude Usage and not this
-- [ ] A stub module whose `summary()` throws shows `unavailable`; the other
+- [x] Home screen shows four rows, all `unavailable`, no renderer errors
+- [x] `Ctrl+Alt+D` toggles; `Ctrl+Alt+C` still toggles Claude Usage and not this
+- [x] A stub module whose `summary()` throws shows `unavailable`; the other
       three rows still render
-- [ ] Tray menu lists the four modules and opens them
-- [ ] `npm run autostart:on` registers under a key **different** from the
+- [x] Tray menu lists the four modules and opens them
+- [x] `npm run autostart:on` registers under a key **different** from the
       sibling's `electron.app.Electron` — paste both registry values
-- [ ] Both apps run at the same time, each with its own tray icon
+- [x] Both apps run at the same time, each with its own tray icon
 
 ### Verify
 

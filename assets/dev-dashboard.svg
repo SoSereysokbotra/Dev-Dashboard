@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Dev Dashboard 4-quadrant icon: Repos, Cost, Disk, Ports -->
+  <rect x="7" y="7" width="22" height="22" rx="4.5" fill="#38bdf8" />
+  <rect x="35" y="7" width="22" height="22" rx="4.5" fill="#818cf8" />
+  <rect x="7" y="35" width="22" height="22" rx="4.5" fill="#34d399" />
+  <rect x="35" y="35" width="22" height="22" rx="4.5" fill="#fbbf24" />
+</svg>

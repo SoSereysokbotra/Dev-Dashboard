@@ -1,0 +1,23 @@
+{
+  "name": "dev-dashboard",
+  "version": "1.0.0",
+  "description": "Always-on-top desktop widget with four local developer tools: Repos, Cost / Project, Disk, Ports",
+  "main": "src/main.js",
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js",
+    "start": "node scripts/launch.js",
+    "dev": "node scripts/launch.js --dev",
+    "autostart:on": "node scripts/launch.js --autostart=on",
+    "autostart:off": "node scripts/launch.js --autostart=off",
+    "autostart:status": "node scripts/launch.js --autostart=status",
+    "icon": "node scripts/launch.js scripts/make-tray-icon.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^44.3.0"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
