@@ -712,9 +712,9 @@ in the startup list, and removes the Node prerequisite.
 
 ### Acceptance criteria
 
-- [ ] Installer produces a working app on a machine without Node
-- [ ] Auto-start survives a reboot and is listed under the app's own name
-- [ ] Claude Usage is unaffected
+- [x] Installer produces a working app on a machine without Node
+- [x] Auto-start survives a reboot and is listed under the app's own name
+- [x] Claude Usage is unaffected
 
 ---
 

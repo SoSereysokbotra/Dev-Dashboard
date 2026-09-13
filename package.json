@@ -10,12 +10,45 @@
     "autostart:on": "node scripts/launch.js --autostart=on",
     "autostart:off": "node scripts/launch.js --autostart=off",
     "autostart:status": "node scripts/launch.js --autostart=status",
-    "icon": "node scripts/launch.js scripts/make-tray-icon.js"
+    "icon": "node scripts/launch.js scripts/make-tray-icon.js",
+    "icon:app": "node scripts/launch.js scripts/make-app-icon.js",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win"
+  },
+  "build": {
+    "appId": "com.sobotra.devdashboard",
+    "productName": "Dev Dashboard",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "shortcutName": "Dev Dashboard"
+    }
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^44.3.0"
+    "electron": "^44.3.0",
+    "electron-builder": "^26.15.3"
   },
   "engines": {
     "node": ">=22.12.0"

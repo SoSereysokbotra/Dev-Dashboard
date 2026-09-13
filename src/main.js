@@ -3,7 +3,7 @@
 const { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, nativeTheme, globalShortcut } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 
 const settingsModule = require('./shell/settings');
 const registry = require('./shell/registry');
@@ -207,8 +207,9 @@ function createWindow() {
             await new Promise(r => setTimeout(r, 300));
           }
           const img = await win.webContents.capturePage();
-          fs.writeFileSync(path.join(__dirname, '..', 'dev-dashboard-screenshot.png'), img.toPNG());
-          console.log('[screenshot] wrote dev-dashboard-screenshot.png (' + img.getSize().width + 'x' + img.getSize().height + ')');
+          const outPath = path.join(process.cwd(), 'dev-dashboard-screenshot.png');
+          fs.writeFileSync(outPath, img.toPNG());
+          console.log('[screenshot] wrote ' + outPath + ' (' + img.getSize().width + 'x' + img.getSize().height + ')');
         } catch (err) {
           console.error('[screenshot] failed:', err.message);
         }
@@ -464,6 +465,9 @@ function createTray() {
 // --- autostart (Req 11: safe from sibling collision) -----------------------
 
 function getAutostartCommand() {
+  if (app.isPackaged) {
+    return `"${process.execPath}"`;
+  }
   const electronExe = process.execPath;
   const appPath = path.resolve(__dirname, '..');
   return `"${electronExe}" "${appPath}"`;
@@ -471,7 +475,7 @@ function getAutostartCommand() {
 
 function loginItemEnabled() {
   try {
-    const out = execSync(`reg query "${RUN_KEY}" /v "${APP_REG_NAME}"`, { stdio: ['ignore', 'pipe', 'ignore'] }).toString();
+    const out = execFileSync('reg.exe', ['query', RUN_KEY, '/v', APP_REG_NAME], { stdio: ['ignore', 'pipe', 'ignore'] }).toString();
     return out.includes(APP_REG_NAME);
   } catch (err) {
     return false;
@@ -481,10 +485,10 @@ function loginItemEnabled() {
 function setLoginItem(enabled) {
   if (enabled) {
     const cmd = getAutostartCommand();
-    execSync(`reg add "${RUN_KEY}" /v "${APP_REG_NAME}" /t REG_SZ /d "${cmd}" /f`, { stdio: 'ignore' });
+    execFileSync('reg.exe', ['add', RUN_KEY, '/v', APP_REG_NAME, '/t', 'REG_SZ', '/d', cmd, '/f'], { stdio: 'ignore' });
   } else {
     try {
-      execSync(`reg delete "${RUN_KEY}" /v "${APP_REG_NAME}" /f`, { stdio: 'ignore' });
+      execFileSync('reg.exe', ['delete', RUN_KEY, '/v', APP_REG_NAME, '/f'], { stdio: 'ignore' });
     } catch (err) {
       // Key may not exist
     }
