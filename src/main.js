@@ -191,7 +191,7 @@ function createWindow() {
           console.error('[screenshot] failed:', err.message);
         }
         app.quit();
-      }, 1800);
+      }, 3500);
     }
   });
 

@@ -143,8 +143,9 @@
     panelHead.textContent = name;
     panelBody.textContent = 'Loading...';
 
+    // Panels can grow up to 420px (Req 5)
     if (bridge && bridge.setWindowHeight) {
-      bridge.setWindowHeight(320);
+      bridge.setWindowHeight(380);
     }
 
     if (bridge && bridge.getPanel) {
@@ -172,6 +173,11 @@
       return;
     }
 
+    if (currentModuleId === 'repos' && data.repos) {
+      renderReposPanel(data);
+      return;
+    }
+
     const statusEl = document.createElement('div');
     statusEl.textContent = data.statusText || 'Module active.';
     panelBody.appendChild(statusEl);
@@ -184,6 +190,103 @@
         list.appendChild(li);
       });
       panelBody.appendChild(list);
+    }
+  }
+
+  function renderReposPanel(data) {
+    panelHead.textContent = data.statusText || 'Repositories';
+    panelBody.textContent = '';
+
+    if (!data.repos || data.repos.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'repo-remaining';
+      empty.textContent = 'No repositories found.';
+      panelBody.appendChild(empty);
+      return;
+    }
+
+    const list = document.createElement('div');
+    list.className = 'repo-list';
+
+    data.repos.forEach(function (r) {
+      const item = document.createElement('div');
+      item.className = 'repo-item';
+      item.title = r.path + ' (click to open in Explorer)';
+
+      const top = document.createElement('div');
+      top.className = 'repo-row-top';
+
+      const name = document.createElement('span');
+      name.className = 'repo-name';
+      name.textContent = r.name;
+
+      const branch = document.createElement('span');
+      branch.className = 'branch-pill';
+      branch.textContent = r.branch || 'unknown';
+
+      const folderIcon = document.createElement('span');
+      folderIcon.className = 'folder-icon';
+      folderIcon.textContent = '\uD83D\uDCC1'; // 📁
+
+      top.appendChild(name);
+      top.appendChild(branch);
+      top.appendChild(folderIcon);
+
+      const bottom = document.createElement('div');
+      bottom.className = 'repo-row-bottom';
+
+      if (r.unpushed != null && r.unpushed > 0) {
+        const chip = document.createElement('span');
+        chip.className = 'chip unpushed';
+        chip.textContent = '\u2191 ' + r.unpushed + ' unpushed';
+        bottom.appendChild(chip);
+      } else if (r.unpushed === null) {
+        const chip = document.createElement('span');
+        chip.className = 'chip no-upstream';
+        chip.textContent = 'no upstream';
+        bottom.appendChild(chip);
+      }
+
+      if (r.changed > 0) {
+        const chip = document.createElement('span');
+        chip.className = 'chip dirty';
+        chip.textContent = '\u00B1 ' + r.changed + ' dirty';
+        bottom.appendChild(chip);
+      }
+
+      if (r.behind != null && r.behind > 0) {
+        const chip = document.createElement('span');
+        chip.className = 'chip behind';
+        chip.textContent = '\u2193 ' + r.behind + ' behind';
+        bottom.appendChild(chip);
+      }
+
+      if (!r.needsAttention) {
+        const chip = document.createElement('span');
+        chip.className = 'chip clean';
+        chip.textContent = 'clean';
+        bottom.appendChild(chip);
+      }
+
+      item.appendChild(top);
+      item.appendChild(bottom);
+
+      item.addEventListener('click', function () {
+        if (bridge && bridge.invokeAction) {
+          bridge.invokeAction('repos', 'openFolder', { path: r.path });
+        }
+      });
+
+      list.appendChild(item);
+    });
+
+    panelBody.appendChild(list);
+
+    if (data.remainingCount > 0) {
+      const rem = document.createElement('div');
+      rem.className = 'repo-remaining';
+      rem.textContent = '+ ' + data.remainingCount + ' more repositories';
+      panelBody.appendChild(rem);
     }
   }
 

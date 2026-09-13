@@ -40,6 +40,15 @@ function loadModules(modulesDir) {
         text: 'unavailable',
         severity: 'unknown',
       });
+
+      if (typeof mod.setScanCompleteListener === 'function') {
+        mod.setScanCompleteListener(async function () {
+          await fetchSummaryForModule(mod);
+          if (updateCallback) {
+            updateCallback(getCachedSummaries());
+          }
+        });
+      }
     } catch (err) {
       console.error('[registry] failed to load module at ' + modPath + ':', err.message);
     }

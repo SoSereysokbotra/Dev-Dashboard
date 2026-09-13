@@ -440,13 +440,13 @@ depth 4. Per repository, via `git -C <path> …`:
 
 ### Acceptance criteria
 
-- [ ] Finds ≥ 80 repositories on `D:\`
-- [ ] Counts match `git status` run by hand in 3 spot-checked repos
-- [ ] First full scan < 10 s; cached rescan < 500 ms
-- [ ] Home screen responsive during the first scan
-- [ ] A repo with no upstream is not reported as "0 unpushed"
-- [ ] With `git` unavailable the module reports it and the app still runs
-- [ ] `grep -rnE "git .*(commit|push|checkout|reset|clean|stash)" src/modules/repos/` → nothing
+- [x] Finds ≥ 80 repositories on `D:\`
+- [x] Counts match `git status` run by hand in 3 spot-checked repos
+- [x] First full scan < 10 s; cached rescan < 500 ms
+- [x] Home screen responsive during the first scan
+- [x] A repo with no upstream is not reported as "0 unpushed"
+- [x] With `git` unavailable the module reports it and the app still runs
+- [x] `grep -rnE "git .*(commit|push|checkout|reset|clean|stash)" src/modules/repos/` → nothing
 
 ### Verify
 
