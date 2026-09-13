@@ -514,14 +514,14 @@ project reads anything Claude-related.**
 
 ### Acceptance criteria
 
-- [ ] Per-project 7-day totals sum to the scanner's 7-day total (±$0.01)
-- [ ] Paths differing only by case or slash direction group as one project
-- [ ] Cold scan < 3 s; cached refresh < 100 ms
-- [ ] Duplicate count roughly matches the sibling's (~18k of ~29k) — proves the
+- [x] Per-project 7-day totals sum to the scanner's 7-day total (±$0.01)
+- [x] Paths differing only by case or slash direction group as one project
+- [x] Cold scan < 3 s; cached refresh < 100 ms
+- [x] Duplicate count roughly matches the sibling's (~18k of ~29k) — proves the
       dedupe key is right
-- [ ] `<synthetic>` excluded
-- [ ] "API-equivalent value" appears wherever a dollar figure does
-- [ ] `grep -rn "credentials\|oauth\|fetch(" src/modules/cost/` → nothing
+- [x] `<synthetic>` excluded
+- [x] "API-equivalent value" appears wherever a dollar figure does
+- [x] `grep -rn "credentials\|oauth\|fetch(" src/modules/cost/` → nothing
 
 ### Verify
 

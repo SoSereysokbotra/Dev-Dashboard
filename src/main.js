@@ -184,6 +184,10 @@ function createWindow() {
 
       setTimeout(async function () {
         try {
+          if (process.argv.includes('--scroll-bottom')) {
+            await win.webContents.executeJavaScript("document.getElementById('panelBody').scrollTop = 9999;");
+            await new Promise(r => setTimeout(r, 200));
+          }
           const img = await win.webContents.capturePage();
           fs.writeFileSync(path.join(__dirname, '..', 'dev-dashboard-screenshot.png'), img.toPNG());
           console.log('[screenshot] wrote dev-dashboard-screenshot.png (' + img.getSize().width + 'x' + img.getSize().height + ')');

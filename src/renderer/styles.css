@@ -380,6 +380,143 @@ body {
   padding: 6px 0 2px;
 }
 
+/* --- cost panel --- */
+
+.cost-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 1px;
+}
+
+.cost-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: var(--row-hover-bg);
+  transition: background 0.15s ease;
+}
+.cost-item:hover {
+  background: var(--btn-hover-bg);
+}
+
+.cost-row-top {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.cost-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
+}
+
+.cost-path {
+  font-size: 9.5px;
+  color: var(--faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 auto;
+  max-width: 120px;
+}
+
+.cost-amount {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cost-pct {
+  font-size: 9.5px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cost-bar {
+  height: 4px;
+  background: var(--track);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 1px;
+}
+
+.cost-bar-fill {
+  height: 100%;
+  background: #818cf8; /* indigo accent */
+  border-radius: 2px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cost-bar-fill.other {
+  background: var(--unknown);
+}
+
+.cost-item.no-pointer {
+  cursor: default;
+}
+.cost-item.no-pointer:hover {
+  background: var(--row-hover-bg);
+}
+
+.cost-total-card {
+  margin-top: 10px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  background: var(--track);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--border);
+}
+
+.cost-total-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.cost-total-col:nth-child(2) {
+  text-align: center;
+}
+.cost-total-col:nth-child(3) {
+  text-align: right;
+}
+
+.cost-total-label {
+  font-size: 8.5px;
+  font-weight: 600;
+  color: var(--faint);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.cost-total-val {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.cost-disclaimer {
+  font-size: 8.5px;
+  color: var(--faint);
+  text-align: center;
+  margin-top: 6px;
+  padding: 0 4px;
+  line-height: 1.3;
+}
+
 /* --- divider & footer --- */
 
 .divider {
