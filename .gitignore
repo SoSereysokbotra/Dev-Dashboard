@@ -1,0 +1,31 @@
+node_modules/
+dist/
+out/
+build/
+
+# --- never commit these -------------------------------------------------------
+# Secrets live outside this folder, so nothing here is sensitive today.
+# These rules exist to catch accidents: pasting a config in to debug,
+# redirecting a log, copying a credentials file.
+
+.credentials.json
+.claude.json
+claude.json
+credentials.json
+settings.json
+calibration.json
+
+*.log
+*.log.err
+npm-debug.log*
+
+.env
+.env.*
+*.pem
+*.key
+*.token
+secrets.*
+
+# Screenshots
+screenshots/
+*-screenshot.png
