@@ -670,13 +670,13 @@ Windows only, no network:
 
 ### Acceptance criteria
 
-- [ ] Lists a server started by hand on port 3000, with its PID
-- [ ] Command line resolves to something recognisable, or honestly `unknown`
-- [ ] Kill confirms with PID and command line
-- [ ] Killing frees the port — verified by re-running the scan
-- [ ] Access denied is reported plainly
-- [ ] System PIDs are never offered as killable
-- [ ] Enumeration < 2 s
+- [x] Lists a server started by hand on port 3000, with its PID
+- [x] Command line resolves to something recognisable, or honestly `unknown`
+- [x] Kill confirms with PID and command line
+- [x] Killing frees the port — verified by re-running the scan
+- [x] Access denied is reported plainly
+- [x] System PIDs are never offered as killable
+- [x] Enumeration < 2 s
 
 ### Verify
 

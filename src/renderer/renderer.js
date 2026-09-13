@@ -149,7 +149,7 @@
 
     // Panels can grow up to 420px (Req 5)
     if (bridge && bridge.setWindowHeight) {
-      bridge.setWindowHeight(moduleId === 'cost' || moduleId === 'disk' ? 420 : 380);
+      bridge.setWindowHeight(moduleId === 'cost' || moduleId === 'disk' || moduleId === 'ports' ? 420 : 380);
     }
 
     if (bridge && bridge.getPanel) {
@@ -189,6 +189,11 @@
 
     if (currentModuleId === 'disk' && data.candidates) {
       renderDiskPanel(data);
+      return;
+    }
+
+    if (currentModuleId === 'ports' && data.ports) {
+      renderPortsPanel(data);
       return;
     }
 
@@ -721,6 +726,214 @@
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
     const val = bytes / Math.pow(1024, i);
     return val.toFixed(i >= 2 ? 1 : 0) + ' ' + units[i];
+  }
+
+  let lastPortBanner = null;
+
+  function renderPortsPanel(data) {
+    panelHead.textContent = data.statusText || 'Listening Ports (3000–9999)';
+    panelBody.textContent = '';
+
+    const existingOverlay = document.querySelector('.confirm-overlay');
+    if (existingOverlay) existingOverlay.remove();
+
+    if (lastPortBanner) {
+      const banner = document.createElement('div');
+      banner.className = 'port-banner ' + (lastPortBanner.type || 'success');
+      banner.textContent = lastPortBanner.text;
+      panelBody.appendChild(banner);
+      setTimeout(function () {
+        lastPortBanner = null;
+      }, 8000);
+    }
+
+    if (!data.ports || data.ports.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'repo-remaining';
+      empty.textContent = 'No dev ports listening in range 3000–9999.';
+      panelBody.appendChild(empty);
+      return;
+    }
+
+    const list = document.createElement('div');
+    list.className = 'port-list';
+
+    data.ports.forEach(function (p) {
+      const item = document.createElement('div');
+      item.className = 'port-item';
+      item.title = p.commandLine ? 'Command: ' + p.commandLine : (p.processName || 'unknown');
+
+      const badge = document.createElement('span');
+      badge.className = 'port-badge';
+      badge.textContent = ':' + p.port;
+
+      const info = document.createElement('div');
+      info.className = 'port-info';
+
+      const rowTop = document.createElement('div');
+      rowTop.className = 'port-row-top';
+
+      const title = document.createElement('span');
+      title.className = 'port-title';
+      title.textContent = p.displayName || p.processName || 'unknown';
+
+      const project = document.createElement('span');
+      project.className = 'port-project';
+      project.textContent = p.projectName !== 'unknown' ? p.projectName : '';
+
+      rowTop.appendChild(title);
+      if (p.projectName !== 'unknown') {
+        rowTop.appendChild(project);
+      }
+
+      const rowBottom = document.createElement('div');
+      rowBottom.className = 'port-row-bottom';
+
+      const pidPill = document.createElement('span');
+      pidPill.className = 'port-pill';
+      pidPill.textContent = 'PID ' + p.pid;
+      rowBottom.appendChild(pidPill);
+
+      if (p.protocols && p.protocols.length > 0) {
+        const protoPill = document.createElement('span');
+        protoPill.className = 'port-pill';
+        protoPill.textContent = p.protocols.join('/');
+        rowBottom.appendChild(protoPill);
+      }
+
+      if (p.isSystem) {
+        const sysPill = document.createElement('span');
+        sysPill.className = 'port-pill system';
+        sysPill.textContent = 'system';
+        rowBottom.appendChild(sysPill);
+      }
+
+      info.appendChild(rowTop);
+      info.appendChild(rowBottom);
+
+      const actions = document.createElement('div');
+      actions.className = 'port-actions';
+
+      if (p.killable) {
+        const killBtn = document.createElement('button');
+        killBtn.className = 'port-kill-btn';
+        killBtn.textContent = 'Kill';
+        killBtn.title = 'Terminate process ' + p.pid;
+
+        killBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          showKillConfirmDialog(p);
+        });
+
+        actions.appendChild(killBtn);
+      } else {
+        const sysLabel = document.createElement('span');
+        sysLabel.className = 'port-system-label';
+        sysLabel.textContent = 'system';
+        actions.appendChild(sysLabel);
+      }
+
+      item.appendChild(badge);
+      item.appendChild(info);
+      item.appendChild(actions);
+
+      list.appendChild(item);
+    });
+
+    panelBody.appendChild(list);
+  }
+
+  function showKillConfirmDialog(portEntry) {
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-overlay';
+
+    const dialog = document.createElement('div');
+    dialog.className = 'confirm-dialog';
+
+    const title = document.createElement('div');
+    title.className = 'confirm-title';
+    title.textContent = 'Kill Dev Server (:' + portEntry.port + ')?';
+
+    const desc = document.createElement('div');
+    desc.className = 'confirm-desc';
+    desc.textContent = 'This will immediately terminate the process holding port ' + portEntry.port + ':';
+
+    const pathList = document.createElement('div');
+    pathList.className = 'confirm-paths';
+    const p1 = document.createElement('div');
+    p1.textContent = 'PID: ' + portEntry.pid + ' (' + portEntry.processName + ')';
+    const p2 = document.createElement('div');
+    p2.textContent = 'Command: ' + (portEntry.commandLine || 'unknown');
+    pathList.appendChild(p1);
+    pathList.appendChild(p2);
+
+    const stat = document.createElement('div');
+    stat.className = 'confirm-stat';
+    stat.textContent = 'Port :' + portEntry.port + ' · ' + (portEntry.displayName || portEntry.processName);
+
+    const actions = document.createElement('div');
+    actions.className = 'confirm-actions';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'confirm-btn cancel';
+    cancelBtn.textContent = 'Cancel';
+
+    const killBtn = document.createElement('button');
+    killBtn.className = 'confirm-btn delete';
+    killBtn.textContent = 'Kill Process';
+
+    actions.appendChild(cancelBtn);
+    actions.appendChild(killBtn);
+
+    dialog.appendChild(title);
+    dialog.appendChild(desc);
+    dialog.appendChild(pathList);
+    dialog.appendChild(stat);
+    dialog.appendChild(actions);
+    overlay.appendChild(dialog);
+
+    document.getElementById('card').appendChild(overlay);
+
+    cancelBtn.addEventListener('click', function () {
+      overlay.remove();
+    });
+
+    killBtn.addEventListener('click', async function () {
+      killBtn.textContent = 'Killing...';
+      killBtn.disabled = true;
+      cancelBtn.disabled = true;
+
+      try {
+        if (bridge && bridge.invokeAction) {
+          const result = await bridge.invokeAction('ports', 'kill', {
+            pid: portEntry.pid,
+            port: portEntry.port,
+          });
+
+          overlay.remove();
+
+          if (result && result.success) {
+            lastPortBanner = {
+              type: 'success',
+              text: '\u2713 ' + (result.message || 'Process terminated, port freed.'),
+            };
+          } else {
+            lastPortBanner = {
+              type: 'error',
+              text: 'Failed: ' + ((result && result.error) || 'Could not terminate process.'),
+            };
+          }
+
+          if (bridge.getPanel) {
+            const refreshed = await bridge.getPanel('ports');
+            renderPortsPanel(refreshed);
+          }
+        }
+      } catch (err) {
+        killBtn.textContent = 'Error: ' + err.message;
+        cancelBtn.disabled = false;
+      }
+    });
   }
 
   // --- keyboard handling ---

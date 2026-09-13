@@ -199,6 +199,13 @@ function createWindow() {
             `);
             await new Promise(r => setTimeout(r, 300));
           }
+          if (process.argv.includes('--test-port-kill')) {
+            await win.webContents.executeJavaScript(`
+              const btn = document.querySelector('.port-kill-btn');
+              if (btn) btn.click();
+            `);
+            await new Promise(r => setTimeout(r, 300));
+          }
           const img = await win.webContents.capturePage();
           fs.writeFileSync(path.join(__dirname, '..', 'dev-dashboard-screenshot.png'), img.toPNG());
           console.log('[screenshot] wrote dev-dashboard-screenshot.png (' + img.getSize().width + 'x' + img.getSize().height + ')');
