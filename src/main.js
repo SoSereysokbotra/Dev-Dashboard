@@ -242,8 +242,17 @@ function showWidget() {
     createWindow();
     return;
   }
+  if (win.isMinimized()) {
+    win.restore();
+  }
   win.show();
+  if (settings && settings.alwaysOnTop) {
+    win.setAlwaysOnTop(true, 'screen-saver');
+  }
   win.focus();
+  if (typeof win.moveTop === 'function') {
+    win.moveTop();
+  }
 }
 
 function toggleWidget() {
@@ -251,7 +260,7 @@ function toggleWidget() {
     createWindow();
     return;
   }
-  if (win.isVisible()) {
+  if (win.isVisible() && win.isFocused()) {
     win.hide();
   } else {
     showWidget();
@@ -457,6 +466,7 @@ function createTray() {
   tray = new Tray(trayIcon());
   tray.setToolTip('Dev Dashboard (Ctrl+Alt+D)');
   tray.on('click', toggleWidget);
+  tray.on('double-click', showWidget);
   tray.on('right-click', function () {
     tray.popUpContextMenu(buildTrayMenu());
   });
